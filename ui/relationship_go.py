@@ -6,6 +6,9 @@ import dash
 import dash_core_components as dcc
 import dash_html_components as html
 import plotly.graph_objects as go
+import randomcolor
+
+rand_color = randomcolor.RandomColor()
 
 styles = {
     'pre': {
@@ -73,13 +76,85 @@ def go_callback_function(value):
             source=data['data'][0]['link']['source'],
             target=data['data'][0]['link']['target'],
             value=data['data'][0]['link']['value'],
-            label=data['data'][0]['link']['label']
+            label=data['data'][0]['link']['label'],
+            color=rand_color.generate(count=len(data['data'][0]['link']['label']))
         ))])
 
     fig.update_layout(
         title_text="Energy forecast for 2050<br>Source: Department of Energy & Climate Change, Tom Counsell via <a href='https://bost.ocks.org/mike/sankey/'>Mike Bostock</a>",
         font_size=10,
         clickmode='event+select',
+        height=750,
+        updatemenus=[
+            dict(
+                y=0.9,
+                buttons=[
+                    dict(
+                        label='Thick',
+                        method='restyle',
+                        args=['node.thickness', 20]
+                    ),
+                    dict(
+                        label='Thin',
+                        method='restyle',
+                        args=['node.thickness', 8]
+                    )
+                ]
+            ),
+            dict(
+                y=0.8,
+                buttons=[
+                    dict(
+                        label='Small gap',
+                        method='restyle',
+                        args=['node.pad', 15]
+                    ),
+                    dict(
+                        label='Large gap',
+                        method='restyle',
+                        args=['node.pad', 20]
+                    )
+                ]
+            ),
+            dict(
+                y=0.7,
+                buttons=[
+                    dict(
+                        label='Snap',
+                        method='restyle',
+                        args=['arrangement', 'snap']
+                    ),
+                    dict(
+                        label='Perpendicular',
+                        method='restyle',
+                        args=['arrangement', 'perpendicular']
+                    ),
+                    dict(
+                        label='Freeform',
+                        method='restyle',
+                        args=['arrangement', 'freeform']
+                    ),
+                    dict(
+                        label='Fixed',
+                        method='restyle',
+                        args=['arrangement', 'fixed']
+                    )
+                ]
+            ),
+            dict(
+                y=0.6,
+                buttons=[
+                    dict(
+                        label='Horizontal',
+                        method='restyle',
+                        args=['orientation', 'h']
+                    ),
+                    dict(
+                        label='Vertical',
+                        method='restyle',
+                        args=['orientation', 'v']
+                    )
+                ])]
     )
     return fig
 
