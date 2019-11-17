@@ -2,6 +2,7 @@ import dash
 import dash_core_components as dcc
 import dash_html_components as html
 
+from ui.input_page import input_textarea_layout
 from ui.query_page import query_table_layout
 from ui.relationship_go import go_callback_output, go_callback_input, go_components, go_callback_function, \
     go_display_click_data_callback_input, go_display_click_data_callback_output, go_display_hover_data_callback_output, \
@@ -35,12 +36,15 @@ index_page = html.Div([dcc.Link('Topics', href='/topics'),
                        dcc.Link('Tables', href='/tables'),
                        html.Br(),
                        dcc.Link('Queries', href='/queries'),
+                       html.Br(),
+                       dcc.Link('Input Query', href='/input_query'),
                        ] + go_components)
 
 page_topics = topic_table_layout
 page_streams = stream_table_layout
 page_tables = table_table_layout
 page_queries = query_table_layout
+page_textarea = input_textarea_layout
 
 
 # Update the index
@@ -55,6 +59,8 @@ def display_page(pathname):
         return page_tables
     elif pathname == '/queries':
         return page_queries
+    elif pathname == '/input_query':
+        return page_textarea
     else:
         return index_page
     # You could also return a 404 "URL not found" page here

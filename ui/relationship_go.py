@@ -13,15 +13,15 @@ styles = {
         'overflowX': 'scroll'
     }
 }
-go_components = [dcc.Dropdown(
-    id='my-dropdown',
+go_components = [dcc.RadioItems(
+    id='my-radio-items',
     options=[
-        {'label': 'New York City', 'value': 'NYC'},
-        {'label': 'Montreal', 'value': 'MTL'},
-        {'label': 'San Francisco', 'value': 'SF'}
+        {'label': 'Free to move', 'value': 'freeform'},
+        {'label': 'Fixed', 'value': 'fixed'},
+        {'label': 'Perpendicular', 'value': 'perpendicular'},
+        {'label': 'Snap', 'value': 'snap'}
     ],
-    value='NYC'
-),
+    value='fixed'),
     dcc.Graph(
         id='basic-interactions',
         config={
@@ -49,7 +49,7 @@ go_components = [dcc.Dropdown(
 ]
 
 go_callback_output = dash.dependencies.Output('basic-interactions', 'figure')
-go_callback_input = [dash.dependencies.Input('my-dropdown', 'value')]
+go_callback_input = [dash.dependencies.Input('my-radio-items', 'value')]
 
 
 def go_callback_function(value):
@@ -59,8 +59,7 @@ def go_callback_function(value):
     fig = go.Figure(data=[go.Sankey(
         valueformat=".0f",
         valuesuffix="TWh",
-        arrangement='fixed',
-        # To get click data TODO: set a callback to give this value, if the user needs to click to choose
+        arrangement=value or 'fixed',
         # Define nodes
         node=dict(
             pad=15,
