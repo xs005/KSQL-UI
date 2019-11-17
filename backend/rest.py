@@ -67,7 +67,7 @@ class REST(object):
         else:
             pass
 
-    def get_data(self, query=None):
+    def run_query(self, query=None):
         '''Get data row by row
         :return list of row, the last element is about if terminal=true'''
         if query is not None:
