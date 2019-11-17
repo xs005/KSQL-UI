@@ -3,6 +3,7 @@ import dash_core_components as dcc
 import dash_html_components as html
 
 from ui.query_page import query_table_layout
+from ui.relationship_go import go_callback_output, go_callback_input, go_components, go_callback_function
 from ui.stream_page import stream_table_layout
 from ui.table_page import table_table_layout
 from ui.topic_page import topic_table_layout
@@ -25,15 +26,14 @@ app.layout = html.Div([
     html.Div(id='page-content')
 ])
 
-index_page = html.Div([
-    dcc.Link('Go to Page Topics', href='/topics'),
-    html.Br(),
-    dcc.Link('Go to Page Streams', href='/streams'),
-    html.Br(),
-    dcc.Link('Go to Page Tables', href='/tables'),
-    html.Br(),
-    dcc.Link('Go to Page Queries', href='/queries'),
-])
+index_page = html.Div([dcc.Link('Topics', href='/topics'),
+                       html.Br(),
+                       dcc.Link('Streams', href='/streams'),
+                       html.Br(),
+                       dcc.Link('Tables', href='/tables'),
+                       html.Br(),
+                       dcc.Link('Queries', href='/queries'),
+                       ] + go_components)
 
 page_topics = topic_table_layout
 page_streams = stream_table_layout
@@ -56,6 +56,12 @@ def display_page(pathname):
     else:
         return index_page
     # You could also return a 404 "URL not found" page here
+
+
+@app.callback(go_callback_output,
+              go_callback_input)
+def update_output(value):
+    return go_callback_function(value)
 
 
 if __name__ == '__main__':
