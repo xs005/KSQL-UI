@@ -3,7 +3,9 @@ import dash_core_components as dcc
 import dash_html_components as html
 
 from ui.query_page import query_table_layout
-from ui.relationship_go import go_callback_output, go_callback_input, go_components, go_callback_function
+from ui.relationship_go import go_callback_output, go_callback_input, go_components, go_callback_function, \
+    go_display_click_data_callback_input, go_display_click_data_callback_output, go_display_hover_data_callback_output, \
+    go_display_hover_data_callback_input, go_display_hover_data_function, go_display_click_data_function
 from ui.stream_page import stream_table_layout
 from ui.table_page import table_table_layout
 from ui.topic_page import topic_table_layout
@@ -62,6 +64,18 @@ def display_page(pathname):
               go_callback_input)
 def update_output(value):
     return go_callback_function(value)
+
+
+@app.callback(go_display_hover_data_callback_output,
+              go_display_hover_data_callback_input)
+def display_hover_data(hoverData):
+    return go_display_hover_data_function(hoverData)
+
+
+@app.callback(go_display_click_data_callback_output,
+              go_display_click_data_callback_input)
+def display_click_data(clickData):
+    return go_display_click_data_function(clickData)
 
 
 if __name__ == '__main__':

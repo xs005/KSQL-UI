@@ -1,10 +1,18 @@
 import json
 import urllib
+from textwrap import dedent as d
 
 import dash
 import dash_core_components as dcc
+import dash_html_components as html
 import plotly.graph_objects as go
 
+styles = {
+    'pre': {
+        'border': 'thin lightgrey solid',
+        'overflowX': 'scroll'
+    }
+}
 go_components = [dcc.Dropdown(
     id='my-dropdown',
     options=[
@@ -15,14 +23,32 @@ go_components = [dcc.Dropdown(
     value='NYC'
 ),
     dcc.Graph(
-        id='graph',
+        id='basic-interactions',
         config={
             'showSendToCloud': True,
             'plotlyServerURL': 'https://plot.ly'
         },
-    )]
+    ),
+    html.Div([
+        dcc.Markdown(d("""
+                **Hover Data**
 
-go_callback_output = dash.dependencies.Output('graph', 'figure')
+                Mouse over values in the graph.
+            """)),
+        html.Pre(id='hover-data', style=styles['pre'])
+    ], className='three columns'),
+
+    html.Div([
+        dcc.Markdown(d("""
+                **Click Data**
+
+                Click on points in the graph.
+            """)),
+        html.Pre(id='click-data', style=styles['pre']),
+    ], className='three columns')
+]
+
+go_callback_output = dash.dependencies.Output('basic-interactions', 'figure')
 go_callback_input = [dash.dependencies.Input('my-dropdown', 'value')]
 
 
@@ -33,6 +59,8 @@ def go_callback_function(value):
     fig = go.Figure(data=[go.Sankey(
         valueformat=".0f",
         valuesuffix="TWh",
+        arrangement='fixed',
+        # To get click data TODO: set a callback to give this value, if the user needs to click to choose
         # Define nodes
         node=dict(
             pad=15,
@@ -51,6 +79,21 @@ def go_callback_function(value):
 
     fig.update_layout(
         title_text="Energy forecast for 2050<br>Source: Department of Energy & Climate Change, Tom Counsell via <a href='https://bost.ocks.org/mike/sankey/'>Mike Bostock</a>",
-        font_size=10)
-
+        font_size=10,
+        clickmode='event+select',
+    )
     return fig
+
+
+go_display_hover_data_callback_output = dash.dependencies.Output('hover-data', 'children')
+go_display_hover_data_callback_input = [dash.dependencies.Input('basic-interactions', 'hoverData')]
+go_display_click_data_callback_output = dash.dependencies.Output('click-data', 'children')
+go_display_click_data_callback_input = [dash.dependencies.Input('basic-interactions', 'clickData')]
+
+
+def go_display_hover_data_function(hoverData):
+    return json.dumps(hoverData, indent=2)
+
+
+def go_display_click_data_function(clickData):
+    return json.dumps(clickData, indent=2)
