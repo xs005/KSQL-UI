@@ -21,7 +21,7 @@ go_components = [dcc.RadioItems(
         {'label': 'Perpendicular', 'value': 'perpendicular'},
         {'label': 'Snap', 'value': 'snap'}
     ],
-    value='fixed'),
+    value='snap'),
     dcc.Graph(
         id='basic-interactions',
         config={
@@ -59,7 +59,7 @@ def go_callback_function(value):
     fig = go.Figure(data=[go.Sankey(
         valueformat=".0f",
         valuesuffix="TWh",
-        arrangement=value or 'fixed',
+        arrangement=value or 'snap',
         # Define nodes
         node=dict(
             pad=15,
