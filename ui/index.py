@@ -2,7 +2,8 @@ import dash
 import dash_core_components as dcc
 import dash_html_components as html
 
-from ui.input_page import input_textarea_layout
+from ui.input_query import input_query_layout, input_query_callback_output, input_query_callback_input, \
+    input_query_function, input_query_callback_state
 from ui.query_page import query_table_layout
 from ui.relationship_go import go_callback_output, go_callback_input, go_components, go_callback_function, \
     go_display_click_data_callback_input, go_display_click_data_callback_output, go_display_hover_data_callback_output, \
@@ -44,7 +45,7 @@ page_topics = topic_table_layout
 page_streams = stream_table_layout
 page_tables = table_table_layout
 page_queries = query_table_layout
-page_textarea = input_textarea_layout
+page_textarea = input_query_layout
 
 
 # Update the index
@@ -70,6 +71,13 @@ def display_page(pathname):
               go_callback_input)
 def update_output(value):
     return go_callback_function(value)
+
+
+@app.callback(input_query_callback_output,
+              input_query_callback_input,
+              input_query_callback_state)
+def display_input_query_return(n_clicks, input_query_statement, auto_offset_reset):
+    return input_query_function(n_clicks, input_query_statement, auto_offset_reset)
 
 
 @app.callback(go_display_hover_data_callback_output,

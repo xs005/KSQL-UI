@@ -1,6 +1,7 @@
 import json
 import logging
 
+import pandas as pd
 import requests
 
 from .common import (
@@ -67,16 +68,25 @@ class REST(object):
         else:
             pass
 
-    def run_query(self, query=None):
+    def run_query(self, query=None, auto_offset_reset=KSQL_OFFSET):
         '''Get data row by row
         :return list of row, the last element is about if terminal=true'''
         if query is not None:
             statement = {"ksql": query,
-                         "streamsProperties": {"ksql.streams.auto.offset.reset": KSQL_OFFSET}}
+                         "streamsProperties": {"ksql.streams.auto.offset.reset": auto_offset_reset}}
 
             response = self.post('/query', data=statement)
-            list_of_rows = response.content.decode(ENCODING).replace('\n\n', '').split('\n')
-            list_of_rows.remove('')
-            return list_of_rows
+
+            if query.split(' ')[0].upper() == 'SELECT':
+                list_of_rows = response.content.decode(ENCODING).replace('\n\n', '').split('\n')
+                list_of_rows.remove('')  # remove empty last element
+                exec_status = list_of_rows[-1]  # get the status of the termination
+                row_data_list = [json.loads(row)['row']['columns'] for row in list_of_rows[:-1]]  # get the row data
+                df = pd.DataFrame(row_data_list)
+
+                # TODO: get the name of column, need to parse the query or wait for the KSQL update.
+                # TODO: add syntax analyser to figure out if stream or table or topic exists
+                # TODO: add indicator of query
+                return df, exec_status
         else:
             pass
