@@ -75,18 +75,32 @@ class REST(object):
             statement = {"ksql": query,
                          "streamsProperties": {"ksql.streams.auto.offset.reset": auto_offset_reset}}
 
-            response = self.post('/query', data=statement)
-
             if query.split(' ')[0].upper() == 'SELECT':
+                response = self.post('/query', data=statement)
                 list_of_rows = response.content.decode(ENCODING).replace('\n\n', '').split('\n')
-                list_of_rows.remove('')  # remove empty last element
-                exec_status = list_of_rows[-1]  # get the status of the termination
+                try:
+                    list_of_rows.remove('')  # remove empty last element
+                except:
+                    pass
                 row_data_list = [json.loads(row)['row']['columns'] for row in list_of_rows[:-1]]  # get the row data
                 df = pd.DataFrame(row_data_list)
 
                 # TODO: get the name of column, need to parse the query or wait for the KSQL update.
                 # TODO: add syntax analyser to figure out if stream or table or topic exists
                 # TODO: add indicator of query
-                return df, exec_status
+                # return df, exec_status
+                return df, self.check_response(response)
+            elif query.split(' ')[0].upper() in ['CREATE', 'INSERT']:
+                response = self.post('/ksql', data=statement)
+            return self.check_response(response)
         else:
-            pass
+            return None
+
+    def check_response(self, response):
+        reason = response.reason
+        if reason == 'OK':
+            msg = response.text
+            return f'{reason}: {msg}'
+        else:
+            msg = json.loads(response.text)['message']
+            return f'{reason}: {msg}'
