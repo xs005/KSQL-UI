@@ -31,14 +31,20 @@ class TestREST(TestCase):
         print(topics)
 
     def test_run_query(self):
-        select_query_df, resp = self.r.run_query(
-            query='''SELECT * FROM NYC_TAXI2 LIMIT 10;''')
-        print(select_query_df)
-        print(resp)
+        # select_query_df, resp = self.r.run_query(
+        #     query='''SELECT * FROM NYC_TAXI2 LIMIT 10;''')
+        # print(select_query_df)
+        # print(resp)
 
-        create_query = self.r.run_query(
-            query='''CREATE STREAM NYC_TAXI3 WITH(KAFKA_TOPIC='nyc_yellow_taxi_trip_data', VALUE_FORMAT='AVRO');''')
-        print(create_query)
+        create_query = '''CREATE STREAM NYC_TAXI6 WITH(KAFKA_TOPIC='nyc_yellow_taxi_trip_data', VALUE_FORMAT='AVRO');'''
+        drop_query = '''DROP STREAM NYC_TAXI2;'''
+        list_query = '''LIST TOPICS;'''
+        bad_query = '''LIST TOPIC;'''
+        wrong_action = '''LOST TOPICS;'''
+        describe_query = 'DESCRIBE EXTENDED NYC_TAXI;'
+        df, create_query = self.r.run_query(
+            query=describe_query)
+        print(df.shape, df, create_query)
 
     def test_get_descrption(self):
         stream_list = [i['name'] for i in self.r.get_streams()]

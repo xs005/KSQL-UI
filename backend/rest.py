@@ -4,9 +4,9 @@ import logging
 import pandas as pd
 import requests
 
+from backend.utils import without_keys
 from .common import (
-    HEADER, KSQL_SERVER_URL, LIST_TOPICS, LIST_STREAMS, LIST_TABLES, LIST_QUERIES, ENCODING,
-    KSQL_OFFSET)
+    HEADER, KSQL_SERVER_URL, LIST_TOPICS, LIST_STREAMS, LIST_TABLES, LIST_QUERIES, KSQL_OFFSET, ACTION_LIST)
 
 logger = logging.getLogger(__name__)
 
@@ -71,36 +71,59 @@ class REST(object):
     def run_query(self, query=None, auto_offset_reset=KSQL_OFFSET):
         '''Get data row by row
         :return list of row, the last element is about if terminal=true'''
-        if query is not None:
-            statement = {"ksql": query,
-                         "streamsProperties": {"ksql.streams.auto.offset.reset": auto_offset_reset}}
+        statement = {"ksql": query,
+                     "streamsProperties": {"ksql.streams.auto.offset.reset": auto_offset_reset}}
 
-            if query.split(' ')[0].upper() == 'SELECT':
-                response = self.post('/query', data=statement)
-                list_of_rows = response.content.decode(ENCODING).replace('\n\n', '').split('\n')
-                try:
-                    list_of_rows.remove('')  # remove empty last element
-                except:
-                    pass
-                row_data_list = [json.loads(row)['row']['columns'] for row in list_of_rows[:-1]]  # get the row data
-                df = pd.DataFrame(row_data_list)
+        action = query.split(' ')[0].upper()
+        if action == 'SELECT':
+            response = self.post('/query', data=statement)
+            list_of_rows = response.text.replace('\n\n', '').split('\n')
+            try:
+                list_of_rows.remove('')  # remove empty last element
+            except:
+                pass
+            row_data_list = [json.loads(row)['row']['columns'] for row in list_of_rows[:-1]]  # get the row data
+            df = pd.DataFrame(row_data_list)
 
-                # TODO: get the name of column, need to parse the query or wait for the KSQL update.
-                # TODO: add syntax analyser to figure out if stream or table or topic exists
-                # TODO: add indicator of query
-                # return df, exec_status
-                return df, self.check_response(response)
-            elif query.split(' ')[0].upper() in ['CREATE', 'INSERT']:
-                response = self.post('/ksql', data=statement)
-            return self.check_response(response)
+            # TODO: get the name of column, need to parse the query or wait for the KSQL update.
+            # TODO: add syntax analyser to figure out if stream or table or topic exists
+            # TODO: add indicator of query
+            # return df, exec_status
+            return df, self.check_response(action, response)
+        elif action in ACTION_LIST:
+            response = self.post('/ksql', data=statement)
+            return self.check_response(action, response)
         else:
-            return None
+            return pd.DataFrame(), f'Only support {", ".join(str(x) for x in ACTION_LIST)} and SELECT.'
 
-    def check_response(self, response):
+
+    def check_response(self, action, response):
         reason = response.reason
+        msg = response.text
         if reason == 'OK':
-            msg = response.text
-            return f'{reason}: {msg}'
+            if action in ACTION_LIST and action not in ['LIST', 'DESCRIBE']:
+                msg = json.loads(msg)[0]['commandStatus']['message']
+                return pd.DataFrame(), f'{reason}: {msg}'
+            elif action == 'LIST':
+                msg = list(json.loads(msg)[0].values())[2]
+                return pd.DataFrame(msg), f'{reason}: {msg}'
+            elif action == 'DESCRIBE':
+                fields = json.loads(msg)[0]['sourceDescription']['fields']
+                # reformat the two level dictionary in the list to one level
+                reformat_dict_list = []
+                for field in fields:
+                    one_level_dict = {}
+                    for k, v in field.items():
+                        if isinstance(v, str):
+                            one_level_dict[k] = v
+                        elif isinstance(v, dict):
+                            for k2, v2 in v.items():
+                                one_level_dict[k + '_' + k2] = v2
+                    reformat_dict_list.append(one_level_dict)
+                msg = without_keys(json.loads(msg)[0]['sourceDescription'], 'fields')
+                return pd.DataFrame(reformat_dict_list), f'{reason}: {msg}'
         else:
+            if action in ACTION_LIST:
+                return pd.DataFrame(), f'{reason}: {msg}'
             msg = json.loads(response.text)['message']
-            return f'{reason}: {msg}'
+        return f'{reason}: {msg}'

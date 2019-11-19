@@ -34,12 +34,18 @@ def input_query_function(n_clicks, input_query_statement, auto_offset_reset):
         # send the query to KSQL server
         df, status = REST().run_query(input_query_statement, auto_offset_reset)
 
-        table_layout = html.Div([
-            html.Div(status),
-            dash_table.DataTable(
-                id='input-query-return-data',
-                columns=[{"name": str(i), "id": str(i)} for i in df.columns],
-                data=df.to_dict('records'),
-            )])
+        if df.shape[0] == 0:
+            table_layout = html.Div([
+                html.Div(status),
+                html.Div('No Data/Topic/Stream/Table/Query is found.'),
+            ])
+        else:
+            table_layout = html.Div([
+                dash_table.DataTable(
+                    id='input-query-return-data',
+                    columns=[{"name": str(i), "id": str(i)} for i in df.columns],
+                    data=df.to_dict('records'),
+                ),
+                html.Div(status)])
 
         return table_layout

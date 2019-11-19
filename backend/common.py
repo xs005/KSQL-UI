@@ -9,3 +9,5 @@ LIST_STREAMS = {"ksql": "LIST STREAMS;", "streamsProperties": {"ksql.streams.aut
 LIST_TABLES = {"ksql": "LIST TABLES;", "streamsProperties": {"ksql.streams.auto.offset.reset": KSQL_OFFSET}}
 LIST_QUERIES = {"ksql": "LIST QUERIES;", "streamsProperties": {"ksql.streams.auto.offset.reset": KSQL_OFFSET}}
 LIST_TOPICS = {"ksql": "LIST TOPICS;", "streamsProperties": {"ksql.streams.auto.offset.reset": KSQL_OFFSET}}
+
+ACTION_LIST = ['CREATE', 'INSERT', 'DROP', 'TERMINATE', 'LIST', 'DESCRIBE']
