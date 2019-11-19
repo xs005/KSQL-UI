@@ -6,6 +6,7 @@ class Label:
         self.le = preprocessing.LabelEncoder()
         unique_list = list(set([element for relationship in relationship_list for element in relationship]))
         self.le.fit(unique_list)
+        self.label = self.le.classes_
         self.relationship_list = relationship_list
         self.relationship_enc_list = []
         self.source_list = []

@@ -22,18 +22,20 @@ class Relationship:
         self.get_query(write_queries)
         self.get_query(read_queries)
 
-        relationship = []
         if write_queries and not read_queries:
-            relationship.append(table_or_stream)  # source
-            relationship.append(topic)  # target
+            relationship = [[table_or_stream, topic]]
         elif read_queries and not write_queries:
-            relationship.append(topic)  # source
-            relationship.append(table_or_stream)  # target
+            relationship = [[topic, table_or_stream]]
+            relationship += [[table_or_stream, read_queries[i]['sinks'][0]] for i in range(len(read_queries))]
         elif write_queries and read_queries:
-            relationship.append(write_queries[0]['sinks'][0])  # source
-            relationship.append(read_queries[0]['sinks'][0])  # target
+            relationship = [[table_or_stream, topic]]
+            for i in range(len(write_queries)):
+                for j in range(len(read_queries)):
+                    relationship += [[write_queries[i]['sinks'][0], read_queries[j]['sinks'][0]]]
 
-        self.relationship_list.append(relationship)
+        # TODO: add query id as link label, add color for topic/steam/table
+        self.relationship_list += relationship
+
 
     def get_query(self, query_list):
         if query_list:

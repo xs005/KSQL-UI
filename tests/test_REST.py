@@ -69,9 +69,12 @@ class TestREST(TestCase):
         l = Label(relaionship_list)
         source_list = l.source_list
         target_list = l.target_list
+        labels = l.label
 
         print(source_list, target_list)
 
         print(query_dict, '\n')
 
         print(relaionship_list)
+
+        print(labels)
