@@ -11,3 +11,10 @@ LIST_QUERIES = {"ksql": "LIST QUERIES;", "streamsProperties": {"ksql.streams.aut
 LIST_TOPICS = {"ksql": "LIST TOPICS;", "streamsProperties": {"ksql.streams.auto.offset.reset": KSQL_OFFSET}}
 
 ACTION_LIST = ['CREATE', 'INSERT', 'DROP', 'TERMINATE', 'LIST', 'DESCRIBE']
+
+STYLES = {
+    'pre': {
+        'border': 'thin lightgrey solid',
+        'overflowX': 'scroll'
+    }
+}
