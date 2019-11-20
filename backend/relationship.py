@@ -39,8 +39,10 @@ class Relationship:
                     relationship += [[write_queries[i]['sinks'][0], read_queries[j]['sinks'][0]]]
                     link_label += [read_queries[j]['id']]
 
-        self.link_label_list += link_label
-        self.relationship_list += relationship
+        # Avoid duplicated relationships
+        if relationship not in self.relationship_list:
+            self.link_label_list += link_label
+            self.relationship_list += relationship
 
     def get_query(self, query_list):
         if query_list:
