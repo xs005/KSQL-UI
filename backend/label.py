@@ -61,6 +61,7 @@ class Label:
 
     def label_link_value(self):
         target_list = [relationship[1] for relationship in self.relationship_list]
+        source_list = [relationship[0] for relationship in self.relationship_list]
         link_value_list = []
 
         for relationship in self.relationship_list:
@@ -72,6 +73,7 @@ class Label:
                 link_value_list += [1]
             else:
                 if target in target_list:
-                    link_value_list += [1.0/target_list.count(target)]
+                    source_count = target_list.count(source)
+                    link_value_list += [source_count/target_list.count(target) * 1.0]
         return link_value_list
 
