@@ -4,11 +4,12 @@ from backend.rest import REST
 class Relationship:
     def __init__(self):
         self.rest = REST()
-        stream_list = [i['name'] for i in self.rest.get_streams()]
-        table_list = [i['name'] for i in self.rest.get_tables()]
-        self.tables_and_streams_list = table_list + stream_list
+        self.stream_list = [i['name'] for i in self.rest.get_streams()]
+        self.table_list = [i['name'] for i in self.rest.get_tables()]
+        self.tables_and_streams_list = self.table_list + self.stream_list
         self.query_dict = {}
         self.relationship_list = []
+        self.link_label_list = []
 
         # get relationships and queries
         self.run()
@@ -23,19 +24,23 @@ class Relationship:
         self.get_query(read_queries)
 
         if write_queries and not read_queries:
-            relationship = [[table_or_stream, topic]]
+            relationship = [[write_queries[i]['sinks'][0], topic] for i in range(len(write_queries))]
+            link_label = ['REGISTERED' for _ in range(len(write_queries))]
         elif read_queries and not write_queries:
             relationship = [[topic, table_or_stream]]
+            link_label = ['REGISTERED']
             relationship += [[table_or_stream, read_queries[i]['sinks'][0]] for i in range(len(read_queries))]
+            link_label += [read_queries[i]['id'] for i in range(len(read_queries))]
         elif write_queries and read_queries:
-            relationship = [[table_or_stream, topic]]
+            relationship = [[write_queries[i]['sinks'][0], topic] for i in range(len(write_queries))]
+            link_label = ['REGISTERED' for _ in range(len(write_queries))]
             for i in range(len(write_queries)):
                 for j in range(len(read_queries)):
                     relationship += [[write_queries[i]['sinks'][0], read_queries[j]['sinks'][0]]]
+                    link_label += [read_queries[j]['id']]
 
-        # TODO: add query id as link label, add color for topic/steam/table
+        self.link_label_list += link_label
         self.relationship_list += relationship
-
 
     def get_query(self, query_list):
         if query_list:
