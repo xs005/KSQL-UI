@@ -90,12 +90,22 @@ class REST(object):
             # TODO: add indicator of query
             # return df, exec_status
             return df, self.check_response(action, response)
+        elif action == 'PRINT':
+            response = self.post('/query', data=statement)
+            list_of_rows = response.text.replace('\n\n', '').split('\n')
+            format_info = list_of_rows[0]
+            data_info = list_of_rows[1:-1]
+            row_time = [i.split(',')[0] for i in data_info]
+            data_json_list = [i.split(',', 2)[-1].strip() for i in data_info[0:]]
+            df = pd.read_json(','.join(data_json_list), orient='records', lines=True)
+            df.insert(0, 'FORMAT', format_info.split(':')[-1])
+            df.insert(0, 'ROW_TIME', row_time)
+            return df, self.check_response(action, response)
         elif action in ACTION_LIST:
             response = self.post('/ksql', data=statement)
             return self.check_response(action, response)
         else:
             return pd.DataFrame(), f'Only support {", ".join(str(x) for x in ACTION_LIST)} and SELECT.'
-
 
     def check_response(self, action, response):
         reason = response.reason
