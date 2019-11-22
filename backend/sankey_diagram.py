@@ -23,7 +23,7 @@ link_values = l.label_link_value()
 sankey_diagram = go.Figure(data=[go.Sankey(
     valueformat=".0f",
     valuesuffix=" messages/s",
-
+    arrangement='fixed',
     # Define nodes
     node=dict(
         pad=15,
@@ -82,14 +82,14 @@ sankey_diagram.update_layout(
             y=0.7,
             buttons=[
                 dict(
-                    label='Snap',
-                    method='restyle',
-                    args=['arrangement', 'snap']
-                ),
-                dict(
                     label='Fixed',
                     method='restyle',
                     args=['arrangement', 'fixed']
+                ),
+                dict(
+                    label='Snap',
+                    method='restyle',
+                    args=['arrangement', 'snap']
                 ),
                 dict(
                     label='Perpendicular',
