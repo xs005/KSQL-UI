@@ -3,6 +3,7 @@ from unittest import TestCase
 from backend.label import Label
 from backend.relationship import Relationship
 from backend.rest import REST
+from backend.utils import find_unique
 
 
 class TestREST(TestCase):
@@ -42,8 +43,9 @@ class TestREST(TestCase):
         bad_query = '''LIST TOPIC;'''
         wrong_action = '''LOST TOPICS;'''
         describe_query = 'DESCRIBE EXTENDED NYC_TAXI;'
+        print_query = '''PRINT '11385_ss214' FROM BEGINNING LIMIT 10;'''
         df, create_query = self.r.run_query(
-            query=describe_query)
+            query=print_query)
         print(df.shape, df, create_query)
 
     def test_get_descrption(self):
@@ -65,8 +67,11 @@ class TestREST(TestCase):
         r = Relationship()
         query_dict = r.query_dict
         relaionship_list = r.relationship_list
+        link_label_list = r.link_label_list
+        stream_list = r.stream_list
+        table_list = r.table_list
 
-        l = Label(relaionship_list)
+        l = Label(relaionship_list, stream_list, table_list)
         source_list = l.source_list
         target_list = l.target_list
         labels = l.label
@@ -76,5 +81,9 @@ class TestREST(TestCase):
         print(query_dict, '\n')
 
         print(relaionship_list)
+        print(find_unique(relaionship_list))
+
+        print(link_label_list)
+        print(find_unique(link_label_list))
 
         print(labels)

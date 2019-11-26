@@ -1,4 +1,4 @@
-KSQL_SERVER_URL = 'http://127.0.0.1:8088'
+KSQL_SERVER_URL = 'http://192.168.4.157:10091'
 
 KSQL_OFFSET = "earliest"
 ENCODING = "utf-8"
