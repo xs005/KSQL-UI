@@ -11,3 +11,6 @@
     3. if no queries are executed, not check relationships
     
 4. add button to manually refresh relationship and properties
+
+5. Connect consumer group and query_id, make it clickable, and show the consumer lags in real time
+6. Try to apply something new in KSQLDB
